@@ -3,6 +3,7 @@ var request = require("superagent"); //res.headers  res.header 共存
 var charset = require("superagent-charset");
 var cheerio = require("cheerio");
 var fs = require("fs");
+var url = require("url");
 
 var ApiAddress = require('../../config/apiAddress.js');
 var HeaderUtil = require('../../config/headerUtil.js');
@@ -31,7 +32,7 @@ exports.index = function(req,res){
       var assginHeaders=Object.assign({},HeaderUtil.BASE_HEADER,{Cookie:cookie});
 
       //访问验证码 
-      return getDataProminse(ApiAddress.checkCode,assginHeaders);
+      return getCheckCodeProminse(ApiAddress.checkCode,assginHeaders);
       // return 
     })
     .then(function(data){
@@ -78,7 +79,6 @@ exports.login = function(req,res){
   var postData = Object.assign({},HeaderUtil.LOGIN_CONFIG,receiveParam);
   var assginHeaders = Object.assign({},HeaderUtil.BASE_HEADER,{
     Cookie:cookie,
-    Referer:"http://210.38.137.126:8016/default2.aspx"
   });
 
   // console.log(postData);
@@ -89,7 +89,7 @@ exports.login = function(req,res){
             console.log('-----登录-----结束');
             // console.log(data);
             //解析data数据(result.text) -- html页面;
-            var $ = cheerio.load(data);
+            var $ = cheerio.load(data.text);
 
             //判断是否登录成功
             var studentName=$('#xhxm').text();
@@ -105,7 +105,6 @@ exports.login = function(req,res){
               req.session.loginFailInfo=loginFailInfo;
               //退出
               _res.json(loginFailInfo);
-              // _res.redirect('/err');
             }else{
               console.log(studentName + ' -- 登录成功');
               //清空错误信息
@@ -118,7 +117,7 @@ exports.login = function(req,res){
                 for(var i=0,len=courses.length;i<len;i++){
                   var course = courses[i];
                   courseNameList[i]=course.children[0].data;
-                  courseHrefList[i]=course.attribs.href;
+                  courseHrefList[i]=ApiAddress.basePath+course.attribs.href;
                 }
                 console.log(courseNameList);
                 console.log(courseHrefList);
@@ -129,10 +128,79 @@ exports.login = function(req,res){
                 courseNameList=[];
                 courseHrefList=[];
               }
-
               //TODO 保存每个课程成绩
+              // return saveAllCourseDataProminse(assginHeaders,courseHrefList);
+
+              //尝试保存最后一个课程
+                var assginHeaders2 = Object.assign({},HeaderUtil.BASE_HEADER,{
+                  Cookie:cookie,
+                  Referer:"http://210.38.137.126:8016/xs_main.aspx?xh=201411672222"
+                });
+                console.log(assginHeaders2);
+
+                getDataProminse(courseHrefList[0],assginHeaders2)
+                .then((data1)=>{
+                  // console.log(data1.text);
+                    //利用 cheerio 获取 需要传递的参数
+                    var $ = cheerio.load(data1.text);
+                      /*获取隐藏表单域字符，每一次提交评价必须带上*/
+                    var hiddenDom = $('input[type="hidden"]');
+                    // var hiddenValue={
+                    //   Button1          :  "保存",
+                    //   __EVENTTARGET:hiddenDom.eq(0).val() || "",
+                    //   __EVENTARGUMENT:hiddenDom.eq(1).val() || "",
+                    //   __VIEWSTAT:hiddenDom.eq(2).val() || ""
+                    // }
+                    //OK
+                    // console.log(hiddenValue);
+
+                    //获取课程号
+                    var args = url.parse(courseHrefList[0],true);
+                    console.log(args);
+                    console.log('-------');
+                    console.log(args.query);
+                    console.log('-------');
+                    console.log(args.query['xkkh']);
+
+                    // var xkkh = args.query['xkkh'];
+                    // var xkkh = {
+                    //   pjkc : args.query['xkkh']
+                    // }
+                    var hiddenValue={
+                      Button1:"保存",
+                      pjkc:args.query['xkkh'],
+                      __EVENTTARGET:hiddenDom.eq(0).val() || "",
+                      __EVENTARGUMENT:hiddenDom.eq(1).val() || "",
+                      __VIEWSTAT:hiddenDom.eq(2).val() || ""
+                    }
+
+                    //组装postData
+                    var sendData = Object.assign({},hiddenValue,HeaderUtil.postParmEvaluationOneTeacher);
+                    // console.log(sendData);
+                    var assginHeaders3 = Object.assign({},HeaderUtil.BASE_HEADER,{
+                      Cookie:cookie,
+                      Referer:courseHrefList[0]
+                    });
+                    postFormDataProminse(courseHrefList[0],assginHeaders3,sendData)
+                      .then((data2)=>{
+                        console.log('完成该课程验证');
+                        console.log(courseHrefList[0]);
+                        console.log(assginHeaders3);
+                        console.log(data.headers);
+                        // console.log(data2.text);
+                      })
+
+                });
+
             }
     });
+    _res.render('err');
+    // .then(function(datas){
+    //   console.log('全部课程保存成功');
+    // })
+    // .catch(err){
+    //   console.log(err);
+    // }
 }
 
 exports.evaluation=function(req,res){
@@ -146,30 +214,61 @@ exports.evaluation=function(req,res){
 
 }
 
-function saveCourse(cookie,courseId,postData){
+//保存所有课程后的prominse
+function saveAllCourseDataProminse(headers,courseHrefList){
+  var prominses = courseHrefList.map(function(href){
+    // var courseProminse = getDataProminse(href,headers);
+    // return courseProminse;
+    getDataProminse(href,headers).then(function(data){
+      return saveSingleCourseDataProminse(data);
+    })
+  });
+  return Promise.all(prominses);
+}
+
+//保存单个课程的prominse 
+function saveSingleCourseDataProminse(data){
+
+  //利用 cheerio 获取 需要传递的参数
+  var $ = cheerio.load(data);
+    /*获取隐藏表单域字符，每一次提交评价必须带上*/
+  var hiddenDom = $('input[type="hidden"]');
+  var hiddenValue={
+    __EVENTTARGET:hiddenDom.eq(0).val(),
+    __EVENTARGUMENT:hiddenDom.eq(1).val(),
+    __VIEWSTAT:hiddenDom.eq(2).val()
+  }
 
   var prominse=new Promise(function(resolve,reject){
 
-    if (!cookie) {
-      console.log('cookie not found');
-      reject();
-    }
-    //组装post参数
-    var postPath=ApiAddress.basePath+courseId;
 
     console.log(postPath);
 
-
-
-  });
-
-
-
+});
   return prominse;
 }
 
 
-function getDataProminse(path,headers,callback){
+function getDataProminse(path,headers,charset){
+  console.log('prominse -- getDataProminse --start');
+  var prominse = new Promise(function(resolve,reject){
+    request.get(path)
+            .charset("gb2312")
+            // .charset(null)
+            .set(headers)
+            .end(function(err,result,body){
+              if (err) {
+                console.log(err);
+                reject(err);
+              }
+              console.log('prominse -- getDataProminse --end');
+              resolve(result);
+            });
+  });
+  return prominse;
+}
+//TODO 解决charset问题
+function getCheckCodeProminse(path,headers){
   console.log('prominse -- getDataProminse --start');
   var prominse = new Promise(function(resolve,reject){
     request.get(path)
@@ -181,15 +280,12 @@ function getDataProminse(path,headers,callback){
               }
               console.log('prominse -- getDataProminse --end');
               resolve(result);
-
             });
   });
-
-
   return prominse;
 }
 
-function postFormDataProminse(path,headers,postData,callback){
+function postFormDataProminse(path,headers,postData){
   console.log('prominse -- postFormData');
   var prominse=new Promise(function(resolve,reject){
 
@@ -205,9 +301,11 @@ function postFormDataProminse(path,headers,postData,callback){
               reject(err);
             }
             console.log(result.text);
-            resolve(result.text);
+            // resolve(result.text);
+            resolve(result);
           });
 
   });
   return prominse;
 }
+
