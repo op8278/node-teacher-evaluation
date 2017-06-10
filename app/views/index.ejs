@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/default.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/styles.css">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <!--[if IE]>
+    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+  <![endif]-->
+  </head>
+  <body>
+    <form action="/login" method="post">
+      <input type="text" name="account" id="account" placeholder="学号" />
+      <input type="password" name="password" name="password" placeholder="密码" />
+      <input type="text" name="checkCode" id="checkCode" placeholder="请输入验证码">
+      <input type="text" name="cookie1" id="cookie1" placeholder="<%= cookie1 %>" value="<%= cookie1 %>">
+      <img src="<%= CheckCode %>" alt="验证码">
+      <img src="<%= CheckCode1 %>" alt="验证码">
+      <input type="submit" />
+    </form>
+    <span><%= loginFailInfo %></span>
+  </body>
+</html>
