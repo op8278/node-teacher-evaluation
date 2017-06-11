@@ -15,6 +15,6 @@
     "express-session": "^1.15.3",
     "serve-static": "^1.12.3",
     "superagent": "^3.5.2",
-    "superagent-charset": "^1.2.0",
+    "superagent-charset": "^1.2.0"
   }
 }

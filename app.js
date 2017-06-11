@@ -1,4 +1,3 @@
-var request = require('request');
 var express = require('express');
 var serveStatic = require('serve-static');
 var bodyParser = require('body-parser');
@@ -59,16 +58,3 @@ app.listen(port,function(err){
 //添加路由
 routers(app);
 
-
-
-// var COOKIE="";
-// //拿cookie
-// request('http://210.38.137.126:8016/default2.aspx',function(error,response,body){
-//   COOKIE=String(response.headers['set-cookie']).replace(/; path=\// , "");
-//   // console.log(String(response.headers['set-cookie']).replace(/; path=\// , ""));
-//   console.log(response.headers);
-//   console.log(COOKIE);
-
-
-// });
-// request.get('http://210.38.137.126:8016/default2.aspx').end()
