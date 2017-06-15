@@ -3,7 +3,7 @@
 var ALL_LEVEL=['A','B','C','D','E'];
 
 
-var HIGH_LEVEL=['A','D'];
+var HIGH_LEVEL=['A','B'];
 
 
 

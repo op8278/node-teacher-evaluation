@@ -2,7 +2,7 @@
 var request = require("superagent"); //res.headers  res.header 共存
 var charset = require("superagent-charset");
 var cheerio = require("cheerio");
-var qs = require('querystring');
+var qs = require("querystring");
 var fs = require("fs");
 var url = require("url");
 
@@ -11,25 +11,27 @@ var DataConfig = require('../../config/dataConfig.js');
 
 charset(request);
 
-exports.test=function(req,res){
-  console.log(DataConfig.EVALUATION_CONFIG);
-  res.send(DataConfig.EVALUATION_CONFIG);  
+//组装Error对象
+function assembleError(code,msg){
+  var err = new Error(msg);
+  err.code = code;
+  err.msg = msg;
+  return err;
 }
 
 //首页
-exports.index = function(req,res){
+exports.index = function(req,res,next){
   var cookie = "";
   var _res=res;
-  console.log('-----index-----');
-
+  console.log('-----首页-----');
   getDataProminse(ApiAddress.login,DataConfig.BASE_HEADER)
     .then((data)=>{
       console.log('-------进入getDataProminse登录的then');
-      console.log(data.headers);
-      // console.log(data.header);
-      //保存cookie
-      console.log(data.headers["set-cookie"][0]); 
+      // console.log(data.headers);
+      //获取cookie并保存cookie
+      //cookie替换前 ASP.NET_SessionId=dcifgrq5vtvlnkmiwy5jpvvf; path=/
       cookie = String(data.headers["set-cookie"][0]).replace(/; path=\// , "");
+      //cookie替换后 ASP.NET_SessionId=dcifgrq5vtvlnkmiwy5jpvvf
       req.session.saveCookie=cookie;
       var assginHeaders=Object.assign({},DataConfig.BASE_HEADER,{Cookie:cookie});
 
@@ -38,8 +40,8 @@ exports.index = function(req,res){
     })
     .then((data)=>{
       console.log('-------进入getDataProminse验证码的then');
-      console.log(data.headers);
-      fs.writeFile('public/img/'+cookie+'CheckCode.gif',data.body,(err)=>{
+      // console.log(data.headers);
+      fs.writeFile('public/img/CheckCode.gif',data.body,(err)=>{
         if(err){
           console.log(err);
           throw new Error('写入图片错误');
@@ -47,7 +49,7 @@ exports.index = function(req,res){
         console.log('checkCode.gif写入成功');
         _res.render('index',{
           title:"评价首页",
-          CheckCode : "/img/" + cookie + "CheckCode.gif",
+          CheckCode : "/img/CheckCode.gif",
           CheckCode1 : ApiAddress.checkCode,
           cookie1 : cookie
         });
@@ -56,15 +58,14 @@ exports.index = function(req,res){
     .catch((err)=>{
       console.log(err);
       console.log('登入首页错误');
+      return _res.render('err');
     });
 }
 
 //登录 Post请求
-exports.login = function(req,res){
+exports.login = function(req,res,next){
 
   console.log('-----登录-----开始');
-
-  
   var _res=res;//全局res对象
   var courseHrefList=[];//评价课程Url地址
   var courseNameList=[];//评价课程名字
@@ -75,13 +76,8 @@ exports.login = function(req,res){
     TextBox2:req.body.password || "",
     txtSecretCode:req.body.checkCode || ""
   }
-  console.log(receiveParam);
-
   //获取cookie
   var cookie = req.session.saveCookie || "" ;
-  
-  console.log("---login---cookie---"+cookie);
-
   //组装Post参数和请求头
   var assemblePostParam = Object.assign({},DataConfig.LOGIN_CONFIG,receiveParam);
   var assembleLoginHeader = Object.assign({},DataConfig.BASE_HEADER,{
@@ -106,23 +102,22 @@ exports.login = function(req,res){
           console.log(loginFailInfo);
           //错误信息 保存在locals变量中,供页面调用
           req.session.loginFailInfo=loginFailInfo;
-          //保存学号 例如201311672201
-          req.session.account=receiveParam.txtUserName;
-
           //退出
-          // _res.json(loginFailInfo);
-          // return _res.render('err');
+           return Promise.reject(assembleError(1,loginFailInfo));
         }else{
           console.log('-----登录-----成功-----' + studentName);
           console.log('-----获取评价课程信息列表-----开始');
           //清空错误信息
           req.session.loginFailInfo = null;
           req.session.isEvaluated = false;
+          req.session.courseFailInfo = null;
+          //保存学号 例如201311672201
+          req.session.account=receiveParam.txtUserName;
           //保存course数据
           // var courses   = $('.sub');
           //eq(0)--网上选课 eq(1)--报名或申请 eq(2)--教学质量评价
           var courses   = $('.sub').eq(2).find('a');
-          if (courses) {
+          if (courses && courses.length > 0) {
             for(var i=0,len=courses.length;i<len;i++){
               var course = courses[i];
               courseNameList[i]=course.children[0].data;
@@ -130,44 +125,69 @@ exports.login = function(req,res){
             }
             console.log(courseNameList);
             console.log(courseHrefList);
-
             req.session.courseHrefList=courseHrefList;
           }else{
             console.log('-----获取评价课程信息列表-----失败----或者评价完成');
-            req.session.isEvaluated = true;
             //清空 course数据 列表
             courseNameList=[];
             courseHrefList=[];
+            courseFailInfo = '你已评教完or现在不是评教时候'
+            req.session.isEvaluated = false;
+            req.session.courseFailInfo=courseFailInfo;
+
+            return Promise.reject(assembleError(1,courseFailInfo));
           }
-
-            var assembleCourseHeader = Object.assign({},DataConfig.BASE_HEADER,{
-              Cookie:cookie,
-              Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account
-            });
-            console.log('-----获取评价课程信息列表-----结束');
-            console.log('-----总体评教-----开始');
-
-
-            // var testCourseHrefList=[]
-            // testCourseHrefList[0]=courseHrefList[0];
-            // testCourseHrefList[1]=courseHrefList[1];
-            // testCourseHrefList[2]=courseHrefList[2];
-            // testCourseHrefList[3]=courseHrefList[3];
-            // console.log(testCourseHrefList);
-            return saveAllCourseDataProminse(req,cookie,courseHrefList);
+          var assembleCourseHeader = Object.assign({},DataConfig.BASE_HEADER,{
+            Cookie:cookie,
+            Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account
+          });
+          console.log('-----获取评价课程信息列表-----结束');
+          console.log('-----总体评教-----保存所有评教----开始');
+          // var testCourseHrefList=[]
+          // testCourseHrefList[0]=courseHrefList[0];
+          // console.log(testCourseHrefList);
+          return saveAllCourseProminse(req,cookie,courseHrefList);
         }
     })
     .then((data)=>{
-      console.log('评教全部完成');
-      return _res.render('err');
-      //TODO 总体提交
+      console.log('-----总体评教-----保存所有评教----结束----等待提交环节开始');
+      console.log('-----总体评教-----提交所有评教----开始');
+      console.log(data);
+      req.session.isEvaluated=true;
+      var lastData={
+        path:data[data.length-1].path,
+        headers:data[data.length-1].headers
+      }
+      console.log(lastData);
+      return submitAllCourseProminse(req,cookie,lastData.path,lastData.headers);
+    })
+    .then((data)=>{
+      console.log('-----总体评教-----提交所有评教----结束');
+      console.log('-----总体评教-----结束----成功!!!');
+      //TODO 响应提示信息
+      return _res.apiSuccess('评教成功!!!');
     })
     .catch((err)=>{
       console.log(err);
-      console.log('---评教失败---');
+      console.log('-----总体评教-----结束----失败!!!');
+      return _res.apiError(err);
     });
 }
-function saveSingleCourseProminse(req,cookie,path,headers){
+//保存所有课程后的prominse
+function saveAllCourseProminse(req,cookie,courseHrefList){
+  var assembleCourseHeader = Object.assign({},DataConfig.BASE_HEADER,{
+      Cookie:cookie,
+      // Referer:"http://210.38.137.126:8016/xs_main.aspx?xh=201411672223" //TODO修改
+      Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account 
+  });
+  var prominses = courseHrefList.map((href,index)=>{
+    console.log("ALL_PROMINSE"+href);
+    return saveSingleCourseProminse(req,cookie,href,assembleCourseHeader,index);
+  });
+  return Promise.all(prominses);
+}
+//保存单个课程的prominse
+function saveSingleCourseProminse(req,cookie,path,headers,index){
   return new Promise((resolve,reject)=>{
       //get请求获取单个课程信息
       getDataProminse(path,headers)
@@ -185,11 +205,6 @@ function saveSingleCourseProminse(req,cookie,path,headers){
             console.log('-----评教-----' + currentCourseName + '----开始');
             //获取课程号
             var args = url.parse(path,true);
-            // console.log(args);
-            // console.log('-------');
-            // console.log(args.query);
-            // console.log('-------');
-            // console.log(args.query['xkkh']);
             var button1Value = $('#Button1').val();
             var hiddenValue={
               Button1:"保存",
@@ -198,51 +213,69 @@ function saveSingleCourseProminse(req,cookie,path,headers){
               __EVENTARGUMENT:hiddenDom.eq(1).val() || "",
               __VIEWSTATE:hiddenDom.eq(2).val() || ""
             }
-            //组装postData
-            //assembleLoginHeader
-            //assemblePostParam
+            //组装Headers和PostParam
             var assembleEvaluationHeader = Object.assign({},DataConfig.BASE_HEADER,{
               Cookie:cookie,
               Referer:path
             });
             var assemblePostParam = Object.assign({},hiddenValue,DataConfig.EVALUATION_CONFIG);
+            if (index === req.session.courseHrefList.length-1) {
+              console.log('最后一个');
+              req.session.lastPostData=assemblePostParam; //TODO解决undefind
+            }
             return postFormDataProminse(path,assembleEvaluationHeader,assemblePostParam)
         })
         .then((data)=>{
             var $ = cheerio.load(data.text);
             var currentCourseName = $('#pjkc').find("option:selected").text();
-            console.log('-----评教-----' + currentCourseName + '----成功');
-            resolve(currentCourseName);
+            console.log('-----评教-----' + currentCourseName + '----成功'+'---'+index);
+            var returnData={
+              cookie:cookie,
+              path:path,
+              headers:headers
+            }
+            resolve(returnData);
         });
+        //TODO 需要在这catch吗?
         // .catch((err)=>{
         //   console.log(err);
         //   reject(err);
         // });
   });
 }
-// //保存所有课程后的prominse
-function saveAllCourseDataProminse(req,cookie,courseHrefList){
-  var assembleCourseHeader = Object.assign({},DataConfig.BASE_HEADER,{
-      Cookie:cookie,
-      // Referer:"http://210.38.137.126:8016/xs_main.aspx?xh=201411672223" //TODO修改
-      Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account //TODO修改
+function submitAllCourseProminse(req,cookie,path,headers){
+  return new Promise((resolve,reject)=>{
+    var lastPostData=req.session.lastPostData || "";
+    if (!lastPostData) {reject();}
+    var assemblePostParam = Object.assign({},lastPostData,{
+      Button2:"提交",
+    });
+    console.log(assemblePostParam);
+    postFormDataProminse(path,headers,assemblePostParam)
+      .then((data)=>{
+        var $ = cheerio.load(data.text);
+        var text=$('#Form1 script').html();
+        console.log(text);
+        // var reg=/'([^']*)'/;
+        // var resultInfo=reg.exec(text)[1];
+        // console.log(resultInfo);
+        console.log('恭喜你评价完成'); //alert('你已完成评价')
+        resolve();
+      });
   });
-  var prominses = courseHrefList.map((href)=>{
-    console.log("ALL_PROMINSE"+href);
-    return saveSingleCourseProminse(req,cookie,href,assembleCourseHeader);
-  });
-  return Promise.all(prominses);
 }
+
 
 function getDataProminse(path,headers){
   console.log('prominse -- getDataProminse --start');
+  // console.log(headers);
   var prominse = new Promise((resolve,reject)=>{
     request.get(path)
             .charset("gb2312")  //获取的text是中文?  => 是的
             .set(headers)
             .end((err,result,body)=>{
-              console.log('prominse -- getDataProminse --error');
               if (err) {
+                console.log('prominse -- getDataProminse --error');
                 console.log(err);
                 reject(err);
               }
@@ -274,8 +307,8 @@ function getCheckCodeProminse(path,headers){
 
 function postFormDataProminse(path,headers,postData){
   console.log('prominse -- postFormData -- start');
-  console.log(path);
-  console.log(headers);
+  // console.log(path);
+  // console.log(headers);
   // console.log(postData);
   var prominse = new Promise((resolve,reject)=>{
       request.post(path)

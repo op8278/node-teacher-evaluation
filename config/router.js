@@ -5,7 +5,6 @@ var IndexController = require('../app/controller/indexController.js');
 module.exports = function(app){
   
   app.get('/',IndexController.index);
-  app.get('/test',IndexController.test);
   app.post('/login',IndexController.login);
 
   app.get('/err',function(req,res){

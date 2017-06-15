@@ -30,20 +30,34 @@ app.use(session({
   }
 }));
 
+//拓展res对象
 app.use(function(req,res,next){
+  res.apiSuccess = function(data){
+    res.json({
+      code:0,
+      data:data
+    });
+  }
+  res.apiError = function(err){
+    res.json({
+      code:err.code || 1,
+      msg:err.msg ||'unknown'
+      // msg:msg||'unknown'
+    });
+  }
+  next();
+});
 
-  // if (res.locals.loginFailInfo) {
-    console.log('排查locals');
-    // console.log(res.locals.loginFailInfo);
-    // res.locals.loginFailInfo = res.locals.loginFailInfo?res.locals.loginFailInfo:"无错误";
-  // }
+
+app.use(function(req,res,next){
+  //console.log('排查locals');
   var loginFailInfo = req.session.loginFailInfo;
   if (loginFailInfo) {
     res.locals.loginFailInfo = loginFailInfo;
   }else{
     res.locals.loginFailInfo = "无错误";
   }
-  console.log(res.locals.loginFailInfo);
+  // console.log(res.locals.loginFailInfo);
   next();
 });
 
