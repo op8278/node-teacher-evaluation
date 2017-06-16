@@ -1,25 +1,49 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
-    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css" />
-    <link rel="stylesheet" type="text/css" href="/stylesheets/default.css">
-    <link rel="stylesheet" type="text/css" href="/stylesheets/styles.css">
+    <!-- 响应式声明 -->
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
-  <!--[if IE]>
-    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
-  <![endif]-->
+    <!-- IE支持 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title><%= title %></title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="/css/index.css">
   </head>
   <body>
-    <form action="/login" method="post">
-      <input type="text" name="account" id="account" placeholder="学号" />
-      <input type="password" name="password" name="password" placeholder="密码" />
-      <input type="text" name="checkCode" id="checkCode" placeholder="请输入验证码">
-      <input type="text" name="cookie1" id="cookie1" placeholder="<%= cookie1 %>" value="<%= cookie1 %>">
-      <img src="<%= CheckCode %>" alt="验证码">
-      <img src="<%= CheckCode1 %>" alt="验证码">
-      <input type="submit" />
-    </form>
-    <span><%= loginFailInfo %></span>
+    <div id="particles-js"></div>
+    <div class="container-fluid">
+      <form class="login-form" action="/login" method="post">
+        <h2 class="login-title">一键评教系统</h2>
+        <div class="form-group has-feedback">
+          <label class="sr-only" for="account">学号</label>
+          <span class="glyphicon glyphicon-user form-control-feedback"></span>
+          <input class="form-control" id ="account" type="text" name="account" id="account" placeholder="学号"/>
+        </div>        
+        <div class="form-group has-feedback">
+          <label class="sr-only" for="password">密码</label>
+          <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          <input class="form-control" id="password" type="password" name="password" name="password" placeholder="密码"/>
+        </div>
+        <div class="form-group has-feedback">
+          <input class="form-control" type="text" name="checkCode" id="checkCode" placeholder="请输入验证码">
+          <img id="check-code" class="check-code" src="<%= CheckCode %>" alt="验证码">
+        </div>        
+        <button class="btn btn-lg btn-primary btn-block" type="submit">开始评教</button>
+      </form>
+      <span><%= loginFailInfo %></span>
+    </div>
+    <!-- Jquery -->
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/particles.js/2.0.0/particles.min.js"></script>
+    <script src="/js/app.js"></script>
   </body>
 </html>

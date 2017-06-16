@@ -50,7 +50,6 @@ exports.index = function(req,res,next){
         _res.render('index',{
           title:"评价首页",
           CheckCode : "/img/CheckCode.gif",
-          CheckCode1 : ApiAddress.checkCode,
           cookie1 : cookie
         });
       });

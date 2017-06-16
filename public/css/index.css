@@ -1,0 +1,27 @@
+#particles-js{
+  position: absolute;
+  top:0px;
+  width: 100%;
+  height: 100%;
+  z-index:-1;
+  background: cornflowerblue;
+}
+.container-fluid{
+  width: 420px;
+  margin-top: 130px;
+  background-color: #eee;
+  border-radius:5px;
+}
+.login-title{
+  text-align: center;
+}
+.check-code{
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 72px;
+  height: 27px;
+}
+.has-feedback .form-control{
+  padding-right: 80px;
+}
