@@ -79,7 +79,7 @@ exports.index = function(req,res,next){
         };
         console.log('checkCode.gif写入成功');
         _res.render('index',{
-          title:"评价首页",
+          title:"评教首页",
           CheckCode : "/img/CheckCode.gif",
           cookie : cookie
         });
