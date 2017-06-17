@@ -7,8 +7,9 @@
   background: #6495ed;
 }
 .container-fluid{
-  width: 420px;
-  margin-top: 130px;
+  min-width: 320px;
+  max-width: 420px;
+  margin-top: 110px;
   padding-bottom: 20px;
   background-color: #eee;
   border-radius:5px;
