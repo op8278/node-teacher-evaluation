@@ -32,16 +32,17 @@ app.use(session({
 
 //拓展res对象
 app.use(function(req,res,next){
-  res.apiSuccess = function(data){
+  res.apiSuccess = function(msg,data){
     res.json({
       code:0,
+      msg:msg,
       data:data
     });
   }
   res.apiError = function(err){
     res.json({
       code:err.code || 1,
-      msg:err.msg ||'unknown'
+      msg:err.msg ||'unknown error'
       // msg:msg||'unknown'
     });
   }

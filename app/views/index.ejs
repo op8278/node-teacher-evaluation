@@ -19,13 +19,13 @@
   <body>
     <div id="particles-js"></div>
     <div class="container-fluid">
-      <form class="login-form" action="/login" method="post">
+      <form class="login-form"  method="post">
         <h2 class="login-title">一键评教系统</h2>
         <div class="form-group has-feedback">
           <label class="sr-only" for="account">学号</label>
           <span class="glyphicon glyphicon-user form-control-feedback"></span>
           <input class="form-control" id ="account" type="text" name="account" id="account" placeholder="学号"/>
-        </div>        
+        </div>
         <div class="form-group has-feedback">
           <label class="sr-only" for="password">密码</label>
           <span class="glyphicon glyphicon-lock form-control-feedback"></span>
@@ -34,10 +34,17 @@
         <div class="form-group has-feedback">
           <input class="form-control" type="text" name="checkCode" id="checkCode" placeholder="请输入验证码">
           <img id="check-code" class="check-code" src="<%= CheckCode %>" alt="验证码">
-        </div>        
-        <button class="btn btn-lg btn-primary btn-block" type="submit">开始评教</button>
+        </div>
+        <button id="btn-submit" class="btn btn-lg btn-primary btn-block" type="submit">
+          <span id="btn-text" class="btn-text">开始评教</span>
+          <div id="loading" class="loading" style="display: none;">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </button>
+        <span id="hiddenCookie"><%= cookie %></span>
       </form>
-      <span><%= loginFailInfo %></span>
     </div>
     <!-- Jquery -->
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>

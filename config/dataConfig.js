@@ -1,12 +1,6 @@
-
 //评价等级
 var ALL_LEVEL=['A','B','C','D','E'];
-
-
 var HIGH_LEVEL=['A','B'];
-
-
-
 
 exports.BASE_HEADER = {
   "Host"                    : "210.38.137.126:8016",
@@ -18,7 +12,6 @@ exports.BASE_HEADER = {
   "Connection"              : "keep-alive",
   "Upgrade-Insecure-Requests": "1"
 };
-
 exports.LOGIN_CONFIG = {
   "__VIEWSTATE"             :   "dDwtNTE2MjI4MTQ7Oz61L6x6++KxDmUi3mVHED4viE+96g==",
   "RadioButtonList1"        :   "学生",
@@ -30,6 +23,7 @@ exports.LOGIN_CONFIG = {
   
 };
 // postParmEvaluationOneTeacher
+//评价一个教师
 exports.EVALUATION_CONFIG  = {
   //评价教师 
   // String.fromCharCode(66 + Math.floor(Math.random() * 2)
@@ -77,5 +71,103 @@ exports.EVALUATION_CONFIG  = {
   "pjxx"                    : "是个负责任的老师!!棒!", 
   "txt1"                    : "",
   "TextBox1"                : 0
-
 };
+
+//如果需要同时评价两个教师
+exports.EVALUATION_CONFIG_TWO_TEACHER = {
+  "DataGrid1:_ctl2:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl2:txtjs2"  : "", 
+  "DataGrid1:_ctl3:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl3:txtjs2"  : "", 
+  "DataGrid1:_ctl4:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl4:txtjs2"  : "", 
+  "DataGrid1:_ctl5:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl5:txtjs2"  : "", 
+  "DataGrid1:_ctl6:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl6:txtjs2"  : "", 
+  "DataGrid1:_ctl7:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl7:txtjs2"  : "", 
+  "DataGrid1:_ctl8:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl8:txtjs2"  : "",   
+  "DataGrid1:_ctl9:JS2"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl9:txtjs2"  : "", 
+  "DataGrid1:_ctl10:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl10:txtjs2" : "", 
+  "DataGrid1:_ctl11:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl11:txtjs2" : "", 
+  "DataGrid1:_ctl12:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl12:txtjs2" : "",
+  "DataGrid1:_ctl13:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl13:txtjs2" : "", 
+  "DataGrid1:_ctl14:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl14:txtjs2" : "",
+  "DataGrid1:_ctl15:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl15:txtjs2" : "", 
+  "DataGrid1:_ctl16:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl16:txtjs2" : "",
+  "DataGrid1:_ctl17:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl17:txtjs2" : "",
+  "DataGrid1:_ctl18:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl18:txtjs2" : "",
+  "DataGrid1:_ctl19:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl19:txtjs2" : "", 
+  "DataGrid1:_ctl20:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl20:txtjs2" : "",
+  "DataGrid1:_ctl21:JS2"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl21:txtjs2" : ""
+};
+//如果需要同时评价三个教师
+exports.EVALUATION_CONFIG_THREE_TEACHER = {
+  "DataGrid1:_ctl2:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl2:txtjs3"  : "", 
+  "DataGrid1:_ctl3:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl3:txtjs3"  : "", 
+  "DataGrid1:_ctl4:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl4:txtjs3"  : "", 
+  "DataGrid1:_ctl5:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl5:txtjs3"  : "", 
+  "DataGrid1:_ctl6:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl6:txtjs3"  : "", 
+  "DataGrid1:_ctl7:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl7:txtjs3"  : "", 
+  "DataGrid1:_ctl8:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl8:txtjs3"  : "",   
+  "DataGrid1:_ctl9:JS3"     : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl9:txtjs3"  : "", 
+  "DataGrid1:_ctl10:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl10:txtjs3" : "", 
+  "DataGrid1:_ctl11:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl11:txtjs3" : "", 
+  "DataGrid1:_ctl12:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl12:txtjs3" : "",
+  "DataGrid1:_ctl13:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl13:txtjs3" : "", 
+  "DataGrid1:_ctl14:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl14:txtjs3" : "",
+  "DataGrid1:_ctl15:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl15:txtjs3" : "", 
+  "DataGrid1:_ctl16:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl16:txtjs3" : "",
+  "DataGrid1:_ctl17:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl17:txtjs3" : "",
+  "DataGrid1:_ctl18:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl18:txtjs3" : "",
+  "DataGrid1:_ctl19:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl19:txtjs3" : "", 
+  "DataGrid1:_ctl20:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl20:txtjs3" : "",
+  "DataGrid1:_ctl21:JS3"    : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "DataGrid1:_ctl21:txtjs3" : ""
+}; 
+//评价教材
+exports.EVALUATION_TEXTBOOK = {
+  "dgPjc:_ctl2:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl3:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl4:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl5:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl6:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl7:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl8:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl9:jc1"         : HIGH_LEVEL[Math.floor(Math.random() * 2)],
+  "dgPjc:_ctl10:jc1"        : HIGH_LEVEL[Math.floor(Math.random() * 2)]
+}; 
