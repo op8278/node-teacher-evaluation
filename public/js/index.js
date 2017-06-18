@@ -20,6 +20,24 @@ $(document).ready(function(){
     imgCheckCode:$('#check-code')
   }
 
+  //Ajax获取Cookie信息和验证码
+  getCookieAndCheckCode(function(res){
+    //判断是否成功
+    //{code: 1, msg: "登入正方首页错误,网络有点差or海大服务器宕机"}
+    //{"code":0,"msg":"获取cookie和首次验证码成功","data":{"cookie":"ASP.NET_SessionId=k20fpwzw5x5zfu45iktssz45","CheckCode":"/img/CheckCode.gif"}}
+    console.log(res);
+    //如果不成功,提示信息
+    if (res.code ==1) {
+      toogleBtnSubmit(res.msg);
+      return ;
+    }
+    //关闭Loading状态栏
+    toogleBtnSubmit(btnDefaultText);
+    var responseData = res.data;
+    Dom.hiddenCookie.text(responseData.cookie)
+    Dom.imgCheckCode.attr('src',responseData.CheckCode);
+  });
+
   Dom.checkCode.click(function(event){
     event.preventDefault();
     var cookie = Dom.hiddenCookie.text();
@@ -67,9 +85,36 @@ $(document).ready(function(){
         //评价状态为成功
         //TODO 利用改值做些什么
         isEvaluated = true;
+      },
+      error:function(xhr,textStatus,errorThrown){
+        console.log(xhr);
+        console.log(textStatus);
+        console.log(errorThrown);
+        toogleBtnSubmit(textStatus);
       }
     });
   });
+  function getCookieAndCheckCode(callback) {
+    //开启Loading状态提示
+    toogleBtnSubmit();
+    $.ajax({
+      url:'/getCookieAndCheckCode',
+      type:'GET',
+      dataType:'json',
+      cache:false,
+      success:function(res){
+        //{code: 1, msg: "登入正方首页错误,网络有点差or海大服务器宕机"}
+        //{"code":0,"msg":"获取cookie和首次验证码成功","data":{"cookie":"ASP.NET_SessionId=k20fpwzw5x5zfu45iktssz45","CheckCode":"/img/CheckCode.gif"}}
+        callback(res);
+      },
+      error:function(xhr,textStatus,errorThrown){
+        console.log(xhr);
+        console.log(textStatus);
+        console.log(errorThrown);
+        toogleBtnSubmit(textStatus);
+      }
+    });
+  }
   function refreshCheckCode(cookie,callback){
     var receiveParam = {
       cookie:cookie
@@ -89,6 +134,12 @@ $(document).ready(function(){
         // console.log('返回刷新验证码信息--OK');
         // console.log(res);
         callback(res);
+      },
+      error:function(xhr,textStatus,errorThrown){
+        console.log(xhr);
+        console.log(textStatus);
+        console.log(errorThrown);
+        toogleBtnSubmit(textStatus);
       }
     });
   }

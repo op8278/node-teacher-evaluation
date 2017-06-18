@@ -14,7 +14,8 @@
   padding-bottom: 20px;
   background-color: #eee;
   border-radius:5px;
-  background-color: #6495ed;
+  /*background-color: #6495ed;*/
+  background:transparent;
 }
 .login-title{
   text-align: center;

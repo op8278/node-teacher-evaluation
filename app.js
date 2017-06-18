@@ -2,7 +2,7 @@ var express = require('express');
 var serveStatic = require('serve-static');
 var bodyParser = require('body-parser');
 var session=require('express-session');
-var routers = require('./config/router.js');
+var routers = require('./router/router.js');
 
 var app = express();
 
@@ -43,7 +43,6 @@ app.use(function(req,res,next){
     res.json({
       code:err.code || 1,
       msg:err.msg ||'unknown error'
-      // msg:msg||'unknown'
     });
   }
   next();

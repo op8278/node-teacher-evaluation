@@ -18,6 +18,7 @@ function assembleError(code,msg){
   err.msg = msg;
   return err;
 }
+
 //刷新验证码接口
 exports.refreshCheckCode=function(req,res,next){
   var cookie = req.body.cookie || "";
@@ -53,9 +54,19 @@ exports.refreshCheckCode=function(req,res,next){
 //首页
 //TODO 不要等加载完验证码后才加载首页_res.render
 exports.index = function(req,res,next){
-  var cookie = "";
-  var _res=res;
-  console.log('-----首页-----');
+  var cookie = req.session.saveCookie || '';
+  var date = new Date();
+  console.log('-----首页-----' + date);
+  res.render('index',{
+      title: "海大一键评教首页",
+      CheckCode : '',
+      cookie : cookie
+  });
+}
+
+exports.getCookieAndCheckCode = function(req,res,next){
+  var cookie = '';
+  var _res = res;
   getDataProminse(ApiAddress.login,DataConfig.BASE_HEADER)
     .then((data)=>{
       // console.log('-------进入getDataProminse登录的then');
@@ -75,27 +86,25 @@ exports.index = function(req,res,next){
       fs.writeFile('public/img/CheckCode.gif',data.body,(err)=>{
         if(err){
           console.log(err);
-          return Promise.reject(assembleError(1,写入图片错误));
+          return Promise.reject(assembleError(1,'写入图片错误'));
         };
         console.log('checkCode.gif写入成功');
-        _res.render('index',{
-          title:"评教首页",
-          CheckCode : "/img/CheckCode.gif",
-          cookie : cookie
+        return _res.apiSuccess('获取cookie和首次验证码成功',{
+          cookie: cookie,
+          CheckCode : '/img/CheckCode.gif'
         });
       });
     })
     .catch((err)=>{
       console.log(err);
-      console.log('登入首页错误,可能网络有点差');
+      console.log('登入正方首页错误,可能网络有点差or海大服务器宕机');
       return _res.apiError(err);
     });
 }
-
 //登录 Post请求
 exports.login = function(req,res,next){
-
-  console.log('-----登录-----开始');
+  var loginDate = new Date();
+  console.log('-----登录-----开始-----' + loginDate);
   var _res=res;//全局res对象
   var courseHrefList=[];//评价课程Url地址
   var courseNameList=[];//评价课程名字
@@ -117,7 +126,7 @@ exports.login = function(req,res,next){
   //带有Referer
   postFormDataProminse(ApiAddress.login,assembleLoginHeader,assemblePostParam)
     .then((data)=>{
-        console.log('-----登录-----结束');
+        console.log('-----登录-----结束----正在验证登录结果');
         //解析data数据(result.text) -- html页面;
         var $ = cheerio.load(data.text);
         //判断是否登录成功
@@ -135,8 +144,9 @@ exports.login = function(req,res,next){
           //退出
            return Promise.reject(assembleError(1,loginFailInfo));
         }else{
+          var getCoursesInfoDate = new Date();
           console.log('-----登录-----成功-----' + studentName);
-          console.log('-----获取评价课程信息列表-----开始');
+          console.log('-----获取评价课程信息列表-----开始-----' + getCoursesInfoDate);
           //清空错误信息
           req.session.loginFailInfo = null;
           req.session.isEvaluated = false;
@@ -144,6 +154,8 @@ exports.login = function(req,res,next){
           //保存学号 例如201311672201
           req.session.account=receiveParam.txtUserName;
           req.session.studentName=studentName;
+
+          console.log('-----获取评价课程信息列表-----结束-----正在验证获取课程信息结果');
           //保存course数据
           // var courses   = $('.sub');
           //eq(0)--网上选课 eq(1)--报名或申请 eq(2)--教学质量评价
@@ -154,11 +166,12 @@ exports.login = function(req,res,next){
               courseNameList[i]=course.children[0].data;
               courseHrefList[i]=ApiAddress.basePath+course.attribs.href;
             }
+            console.log('-----获取评价课程信息列表-----成功-----展示课程信息...');
             console.log(courseNameList);
             console.log(courseHrefList);
             req.session.courseHrefList=courseHrefList;
           }else{
-            console.log('-----获取评价课程信息列表-----失败----或者评价完成');
+            console.log('-----获取评价课程信息列表-----失败-----或者评价完成');
             //清空 course数据 列表
             courseNameList=[];
             courseHrefList=[];
@@ -171,14 +184,14 @@ exports.login = function(req,res,next){
             Cookie:cookie,
             Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account
           });
-          console.log('-----获取评价课程信息列表-----结束');
-          console.log('-----总体评教-----保存所有评教----开始');
+          var saveCoursesDate = new Date();
+          console.log('-----总体评教-----保存所有评教-----开始-----' + saveCoursesDate);
           return saveAllCourseProminse(req,cookie,courseHrefList);
         }
     })
     .then((data)=>{
-      console.log('-----总体评教-----保存所有评教----结束----等待提交环节开始');
-      console.log('-----总体评教-----提交所有评教----开始');
+      console.log('-----总体评教-----保存所有评教-----结束-----等待提交环节开始');
+      console.log('-----总体评教-----提交所有评教-----开始');
       console.log(data);
       req.session.isEvaluated=true;
       var lastData={
@@ -189,13 +202,14 @@ exports.login = function(req,res,next){
       return submitAllCourseProminse(req,cookie,lastData.path,lastData.headers);
     })
     .then((data)=>{
-      console.log('-----总体评教-----提交所有评教----结束');
-      console.log('-----总体评教-----结束----成功!!!');
+      var completeDate = new Data();
+      console.log('-----总体评教-----提交所有评教-----结束');
+      console.log('-----总体评教-----结束-----成功!!!-----'+completeDate);
       return _res.apiSuccess('评教成功!!!');
     })
     .catch((err)=>{
       console.log(err);
-      console.log('-----总体评教-----结束----失败!!!');
+      console.log('-----总体评教-----结束-----失败!!!');
       return _res.apiError(err);
     });
 }
@@ -316,7 +330,8 @@ function getDataProminse(path,headers){
             .end((err,result,body)=>{
               if (err) {
                 // console.log('prominse -- getDataProminse --error');
-                console.log(err);
+                // console.log(err);
+                err.msg="正方服务器错误(确保海大正方网页能登上去)";
                 reject(err);
               }
               // console.log('prominse -- getDataProminse --end');
@@ -335,7 +350,8 @@ function getCheckCodeProminse(path,headers){
             .end((err,result,body)=>{
               if (err) {
                 // console.log('prominse -- getDataProminse -- error');
-                console.log(err);
+                // console.log(err);
+                err.msg="获取验证码错误";
                 reject(err);
               }
               // console.log('prominse -- getDataProminse --end');
@@ -359,7 +375,8 @@ function postFormDataProminse(path,headers,postData){
           .end((err,result,body)=>{
             if (err) {
               // console.log('prominse -- postFormData -- error');
-              console.log(err);
+              // console.log(err);
+              err.msg="正方服务器错误(确保海大正方网页能登上去)";
               reject(err);
             }
             // console.log('prominse -- postFormData -- end');
