@@ -48,6 +48,7 @@ $(document).ready(function(){
   });
   Dom.btnSubmit.click(function(event){
     event.preventDefault(); //阻止默认表单提交行为Post
+    Dom.btnSubmit.attr('disabled',true);
     toogleBtnSubmit();
     var receiveParam={
       account:Dom.formAccount.val() || "",
@@ -56,10 +57,12 @@ $(document).ready(function(){
     }
     // console.log(receiveParam);
     if (!receiveParam.account || !receiveParam.password || !receiveParam.checkCode) {
+       Dom.btnSubmit.attr('disabled',false);
        toogleBtnSubmit('请检查输入参数是否完整!');
        return ;
     }
     //AJAX请求
+    //TODO AJAX请求时,屏蔽第二次Ajax请求
     $.ajax({
       url:'/login',
       type:'POST',
@@ -72,11 +75,13 @@ $(document).ready(function(){
         //{code: 1, msg: "你已评教完or现在不是评教时候"}
         //{code: 0, msg: "评教成功!!!"}
         console.log(res);
+        Dom.btnSubmit.attr('disabled',false);
         toogleBtnSubmit(res.msg);
         //如果不成功,刷新验证码
         if (res.code ==1) {
           var cookie = Dom.hiddenCookie.text();
           // console.log('如果不成功,刷新验证码');
+          isEvaluated = false;
           refreshCheckCode(cookie,function(checkCodeRes){
             Dom.imgCheckCode.attr('src',checkCodeRes.data);
             return ;
@@ -90,6 +95,7 @@ $(document).ready(function(){
         console.log(xhr);
         console.log(textStatus);
         console.log(errorThrown);
+        Dom.btnSubmit.attr('disabled',false);
         toogleBtnSubmit(textStatus);
       }
     });
@@ -159,4 +165,16 @@ $(document).ready(function(){
       Dom.loading.hide();
     }
   }
+
+
+
+  function sleep(numberMillis) {
+   var now = new Date();
+   var exitTime = now.getTime() + numberMillis;
+   while (true) {
+      now = new Date();
+      if (now.getTime() > exitTime)
+      　　return;
+      }
+   }
 });

@@ -205,7 +205,7 @@ exports.login = function(req,res,next){
       var completeDate = new Date();
       console.log('-----总体评教-----提交所有评教-----结束');
       console.log('-----总体评教-----结束-----成功!!!-----'+completeDate);
-      return _res.apiSuccess('评教成功!!!请登录海大网站确认');
+      return _res.apiSuccess('评教成功!请登录教务系统进一步确认');
     })
     .catch((err)=>{
       console.log(err);
@@ -310,9 +310,9 @@ function submitAllCourseProminse(req,cookie,path,headers){
         var $ = cheerio.load(data.text);
         var text=$('#Form1 script').eq(1).html();
         console.log(text);
-        // var reg=/'([^']*)'/;
-        // var resultInfo=reg.exec(text)[1];
-        // console.log(resultInfo);
+        var reg=/'([^']*)'/;
+        var resultInfo=reg.exec(text)[1];
+        console.log(resultInfo);
         console.log(studentName +' 恭喜你评价完成'); //alert('你已完成评价')
         resolve();
       });
