@@ -48,7 +48,6 @@
   -webkit-animation:loading 1s infinite;
   -moz-animation:loading 1s infinite;
   -o-animation:loading 1s infinite;
-
 }
 .loading .bar:nth-child(2){
   animation-delay:0.2s;

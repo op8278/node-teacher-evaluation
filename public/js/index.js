@@ -49,7 +49,6 @@ $(document).ready(function(){
   Dom.btnSubmit.click(function(event){
     event.preventDefault(); //阻止默认表单提交行为Post
     Dom.btnSubmit.attr('disabled',true);
-    toogleBtnSubmit();
     var receiveParam={
       account:Dom.formAccount.val() || "",
       password:Dom.formPassowrd.val() || "",
@@ -69,6 +68,12 @@ $(document).ready(function(){
       dataType:'json',
       data:receiveParam,
       cache:false,
+      beforeSend:function(){
+        if (isEvaluating) {
+          return false;
+        }
+        toogleBtnSubmit('正在评价...耐心等待...');
+      },
       success:function(res){
         // console.log('返回评价信息--OK');
         //判断是否成功
@@ -158,10 +163,10 @@ $(document).ready(function(){
       Dom.btnText.text(btnDefaultText);
     }
     if (isEvaluating) {
-      Dom.btnText.hide();
+      // Dom.btnText.hide();
       Dom.loading.show();
     }else{
-      Dom.btnText.show();
+      // Dom.btnText.show();
       Dom.loading.hide();
     }
   }
