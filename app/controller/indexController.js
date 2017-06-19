@@ -205,7 +205,7 @@ exports.login = function(req,res,next){
       var completeDate = new Date();
       console.log('-----总体评教-----提交所有评教-----结束');
       console.log('-----总体评教-----结束-----成功!!!-----'+completeDate);
-      return _res.apiSuccess('评教成功!!!');
+      return _res.apiSuccess('评教成功!!!请登录海大网站确认');
     })
     .catch((err)=>{
       console.log(err);
@@ -270,7 +270,7 @@ function saveSingleCourseProminse(req,cookie,path,headers,index){
             if (isThreeTeacher) {
                assemblePostParam = Object.assign({},assemblePostParam,DataConfig.EVALUATION_CONFIG_THREE_TEACHER)
             }
-            console.log(assemblePostParam);
+            // console.log(assemblePostParam);
             
             if (index === req.session.courseHrefList.length-1) {
               console.log('最后一个');
