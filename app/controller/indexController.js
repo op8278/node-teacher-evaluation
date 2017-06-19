@@ -192,13 +192,13 @@ exports.login = function(req,res,next){
     .then((data)=>{
       console.log('-----总体评教-----保存所有评教-----结束-----等待提交环节开始');
       console.log('-----总体评教-----提交所有评教-----开始');
-      console.log(data);
+      // console.log(data);
       req.session.isEvaluated=true;
       var lastData={
         path:data[data.length-1].path,
         headers:data[data.length-1].headers
       }
-      console.log(lastData);
+      // console.log(lastData);
       return submitAllCourseProminse(req,cookie,lastData.path,lastData.headers);
     })
     .then((data)=>{
