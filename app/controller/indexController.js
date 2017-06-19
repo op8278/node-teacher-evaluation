@@ -202,7 +202,7 @@ exports.login = function(req,res,next){
       return submitAllCourseProminse(req,cookie,lastData.path,lastData.headers);
     })
     .then((data)=>{
-      var completeDate = new Data();
+      var completeDate = new Date();
       console.log('-----总体评教-----提交所有评教-----结束');
       console.log('-----总体评教-----结束-----成功!!!-----'+completeDate);
       return _res.apiSuccess('评教成功!!!');
@@ -304,11 +304,11 @@ function submitAllCourseProminse(req,cookie,path,headers){
     var assemblePostParam = Object.assign({},lastPostData,{
       Button2:"提交",
     });
-    console.log(assemblePostParam);
+    // console.log(assemblePostParam);
     postFormDataProminse(path,headers,assemblePostParam)
       .then((data)=>{
         var $ = cheerio.load(data.text);
-        var text=$('#Form1 script').html();
+        var text=$('#Form1 script').eq(1).html();
         console.log(text);
         // var reg=/'([^']*)'/;
         // var resultInfo=reg.exec(text)[1];
