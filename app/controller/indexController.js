@@ -180,7 +180,7 @@ exports.login = function(req,res,next){
             }
             console.log('-----获取评价课程信息列表-----成功-----展示课程信息...');
             console.log(courseNameList);
-            console.log(courseHrefList);
+            // console.log(courseHrefList);
             req.session.courseHrefList=courseHrefList;
           }else{
             console.log('-----获取评价课程信息列表-----失败-----或者评价完成');
@@ -235,7 +235,7 @@ function saveAllCourseProminse(req,cookie,courseHrefList){
       Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account 
   });
   var prominses = courseHrefList.map((href,index)=>{
-    console.log("ALL_PROMINSE"+href);
+    // console.log("ALL_PROMINSE"+href);
     return saveSingleCourseProminse(req,cookie,href,assembleCourseHeader,index);
   });
   return Promise.all(prominses);

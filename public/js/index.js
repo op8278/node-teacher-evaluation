@@ -58,7 +58,8 @@ $(document).ready(function(){
     if (!receiveParam.account || !receiveParam.password || !receiveParam.checkCode) {
        Dom.btnSubmit.attr('disabled',false);
        toogleBtnSubmit('请检查输入参数是否完整!',false);
-       return ;
+       isEvaluating=false;
+       return false;
     }
     //AJAX请求
     //TODO AJAX请求时,屏蔽第二次Ajax请求
