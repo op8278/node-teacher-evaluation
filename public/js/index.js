@@ -59,7 +59,7 @@ $(document).ready(function(){
        Dom.btnSubmit.attr('disabled',false);
        toogleBtnSubmit('请检查输入参数是否完整!',false);
        isEvaluating=false;
-       return false;
+       return ;
     }
     //AJAX请求
     //TODO AJAX请求时,屏蔽第二次Ajax请求
