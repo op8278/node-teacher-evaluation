@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({extend:true})); //解析post传过来的body;
 app.use(session({
   secret:'teacher evalution',
   cookie:{
-    maxAge:1000*60*60  //1 hour   不设置/默认为 会话结束(关闭浏览器)
+    maxAge:1000*60*30  //0.5 hour   不设置/默认为 会话结束(关闭浏览器)
   }
 }));
 

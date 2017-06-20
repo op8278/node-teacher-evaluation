@@ -30,7 +30,7 @@ exports.refreshCheckCode=function(req,res,next){
     console.log('请传入正确的cookie');
     return _res.apiError({code:1,msg:'请传入正确的cookie'});
   }
-  //带着cookie
+  //带着cookie请求验证码
   var assginHeaders=Object.assign({},DataConfig.BASE_HEADER,{Cookie:cookie});
   //访问验证码 
   getCheckCodeProminse(ApiAddress.checkCode,assginHeaders)
@@ -39,7 +39,7 @@ exports.refreshCheckCode=function(req,res,next){
       fs.writeFile('public/img/CheckCodeRefresh'+randomSuffix+'.gif',data.body,(err)=>{
         if(err){
           console.log(err);
-          return Promise.reject(assembleError(1,写入图片错误));
+          return Promise.reject(assembleError(1,'写入图片错误'));
         };
         console.log('CheckCodeRefresh.gif写入成功');
         return _res.apiSuccess('刷新验证码成功','/img/CheckCodeRefresh'+randomSuffix+'.gif');
@@ -64,6 +64,7 @@ exports.index = function(req,res,next){
   });
 }
 
+//获取Cookie和验证码
 exports.getCookieAndCheckCode = function(req,res,next){
   var cookie = '';
   var _res = res;
@@ -103,11 +104,21 @@ exports.getCookieAndCheckCode = function(req,res,next){
 }
 //登录 Post请求
 exports.login = function(req,res,next){
+  // res.end();
   var loginDate = new Date();
   console.log('-----登录-----开始-----' + loginDate);
+
   var _res=res;//全局res对象
   var courseHrefList=[];//评价课程Url地址
   var courseNameList=[];//评价课程名字
+  
+  var isEvaluating = req.session.isEvaluating || false;
+  if (isEvaluating) {
+    //防止多次提交
+    console.log('阻止多次提交');
+    return _res.end();
+  }
+  req.session.isEvaluating = true;
 
   //获取post过来的account,password,验证码
   var receiveParam={
@@ -130,17 +141,18 @@ exports.login = function(req,res,next){
         //解析data数据(result.text) -- html页面;
         var $ = cheerio.load(data.text);
         //判断是否登录成功
-        var studentName=$('#xhxm').text(); //"XXX同学"
+        var studentName = $('#xhxm').text(); //"XXX同学"
         // var studentTrueName=studentName.replace("同学",""); //"XXX"
         if (!studentName) {
           console.log('-----登录-----失败');
           //找出错误信息(正则表达式)
-          var text=$('#form1 script').html();
-          var reg=/'([^']*)'/;
-          var loginFailInfo=reg.exec(text)[1];
+          var text = $('#form1 script').html();
+          var reg = /'([^']*)'/;
+          var loginFailInfo = reg.exec(text)[1];
           console.log(loginFailInfo);
           //错误信息 保存在locals变量中,供页面调用
-          req.session.loginFailInfo=loginFailInfo;
+          req.session.loginFailInfo = loginFailInfo;
+          req.session.isEvaluating = false;
           //退出
            return Promise.reject(assembleError(1,loginFailInfo));
         }else{
@@ -152,8 +164,8 @@ exports.login = function(req,res,next){
           req.session.isEvaluated = false;
           req.session.courseFailInfo = null;
           //保存学号 例如201311672201
-          req.session.account=receiveParam.txtUserName;
-          req.session.studentName=studentName;
+          req.session.account = receiveParam.txtUserName;
+          req.session.studentName = studentName;
 
           console.log('-----获取评价课程信息列表-----结束-----正在验证获取课程信息结果');
           //保存course数据
@@ -177,6 +189,7 @@ exports.login = function(req,res,next){
             courseHrefList=[];
             courseFailInfo = '你已评教完or现在不是评教时候'
             req.session.isEvaluated = false;
+            req.session.isEvaluating = false;
             req.session.courseFailInfo=courseFailInfo;
             return Promise.reject(assembleError(1,courseFailInfo));
           }
@@ -205,11 +218,13 @@ exports.login = function(req,res,next){
       var completeDate = new Date();
       console.log('-----总体评教-----提交所有评教-----结束');
       console.log('-----总体评教-----结束-----成功!!!-----'+completeDate);
+      req.session.isEvaluating = false;
       return _res.apiSuccess('评教成功!请登录教务系统进一步确认');
     })
     .catch((err)=>{
       console.log(err);
       console.log('-----总体评教-----结束-----失败!!!');
+      req.session.isEvaluating = false;
       return _res.apiError(err);
     });
 }

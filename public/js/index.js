@@ -28,11 +28,11 @@ $(document).ready(function(){
     console.log(res);
     //如果不成功,提示信息
     if (res.code ==1) {
-      toogleBtnSubmit(res.msg);
+      toogleBtnSubmit(res.msg,false);
       return ;
     }
     //关闭Loading状态栏
-    toogleBtnSubmit(btnDefaultText);
+    toogleBtnSubmit(btnDefaultText,false);
     var responseData = res.data;
     Dom.hiddenCookie.text(responseData.cookie)
     Dom.imgCheckCode.attr('src',responseData.CheckCode);
@@ -57,7 +57,7 @@ $(document).ready(function(){
     // console.log(receiveParam);
     if (!receiveParam.account || !receiveParam.password || !receiveParam.checkCode) {
        Dom.btnSubmit.attr('disabled',false);
-       toogleBtnSubmit('请检查输入参数是否完整!');
+       toogleBtnSubmit('请检查输入参数是否完整!',false);
        return ;
     }
     //AJAX请求
@@ -72,7 +72,7 @@ $(document).ready(function(){
         if (isEvaluating) {
           return false;
         }
-        toogleBtnSubmit('正在评价...耐心等待...');
+        toogleBtnSubmit('正在评价...耐心等待...',true);
       },
       success:function(res){
         // console.log('返回评价信息--OK');
@@ -81,7 +81,7 @@ $(document).ready(function(){
         //{code: 0, msg: "评教成功!!!"}
         console.log(res);
         Dom.btnSubmit.attr('disabled',false);
-        toogleBtnSubmit(res.msg);
+        toogleBtnSubmit(res.msg,false);
         //如果不成功,刷新验证码
         if (res.code ==1) {
           var cookie = Dom.hiddenCookie.text();
@@ -101,13 +101,13 @@ $(document).ready(function(){
         console.log(textStatus);
         console.log(errorThrown);
         Dom.btnSubmit.attr('disabled',false);
-        toogleBtnSubmit(textStatus);
+        toogleBtnSubmit(textStatus,false);
       }
     });
   });
   function getCookieAndCheckCode(callback) {
     //开启Loading状态提示
-    toogleBtnSubmit();
+    toogleBtnSubmit(btnDefaultText,true);
     $.ajax({
       url:'/getCookieAndCheckCode',
       type:'GET',
@@ -122,7 +122,7 @@ $(document).ready(function(){
         console.log(xhr);
         console.log(textStatus);
         console.log(errorThrown);
-        toogleBtnSubmit(textStatus);
+        toogleBtnSubmit(textStatus,false);
       }
     });
   }
@@ -132,7 +132,7 @@ $(document).ready(function(){
     }
     // console.log(cookie);
     if (!cookie) {
-      toogleBtnSubmit('刷新验证码错误!');
+      toogleBtnSubmit('刷新验证码错误!',false);
       return ;
     }
     $.ajax({
@@ -150,11 +150,11 @@ $(document).ready(function(){
         console.log(xhr);
         console.log(textStatus);
         console.log(errorThrown);
-        toogleBtnSubmit(textStatus);
+        toogleBtnSubmit(textStatus,false);
       }
     });
   }
-  function toogleBtnSubmit(showText){
+  function toogleBtnSubmit(showText,isShowLoading){
     isEvaluating = !isEvaluating
     // console.log('isEvaluating=='+isEvaluating);
     if (showText) {
@@ -162,24 +162,18 @@ $(document).ready(function(){
     }else{
       Dom.btnText.text(btnDefaultText);
     }
-    if (isEvaluating) {
-      // Dom.btnText.hide();
+    if (isShowLoading) {
       Dom.loading.show();
     }else{
-      // Dom.btnText.show();
       Dom.loading.hide();
     }
+    // if (isEvaluating) {
+    //   // Dom.btnText.hide();
+    //   Dom.loading.show();
+    // }else{
+    //   // Dom.btnText.show();
+    //   Dom.loading.hide();
+    // }
   }
 
-
-
-  function sleep(numberMillis) {
-   var now = new Date();
-   var exitTime = now.getTime() + numberMillis;
-   while (true) {
-      now = new Date();
-      if (now.getTime() > exitTime)
-      　　return;
-      }
-   }
 });
