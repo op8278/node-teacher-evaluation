@@ -58,7 +58,7 @@ exports.index = function(req,res,next){
   var date = new Date();
   console.log('-----首页-----' + date);
   res.render('index',{
-      title: "海大一键评教首页",
+      title: "海大一键评教系统",
       CheckCode : '',
       cookie : cookie
   });
