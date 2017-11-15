@@ -24,8 +24,6 @@ exports.refreshCheckCode=function(req,res,next){
   var cookie = req.body.cookie || "";
   var _res = res;
   var randomSuffix=Math.floor(Math.random() * 10);
-  // console.log(randomSuffix);
-  // console.log(cookie);
   if (!cookie) {
     console.log('请传入正确的cookie');
     return _res.apiError({code:1,msg:'请传入正确的cookie'});
@@ -35,7 +33,6 @@ exports.refreshCheckCode=function(req,res,next){
   //访问验证码 
   getCheckCodeProminse(ApiAddress.checkCode,assginHeaders)
     .then((data)=>{
-      // console.log('-------进入getDataProminse验证码的then');
       fs.writeFile('public/img/CheckCodeRefresh'+randomSuffix+'.gif',data.body,(err)=>{
         if(err){
           console.log(err);
@@ -70,8 +67,6 @@ exports.getCookieAndCheckCode = function(req,res,next){
   var _res = res;
   getDataProminse(ApiAddress.login,DataConfig.BASE_HEADER)
     .then((data)=>{
-      // console.log('-------进入getDataProminse登录的then');
-      // console.log(data.headers);
       //获取cookie并保存cookie
       //cookie替换前 ASP.NET_SessionId=dcifgrq5vtvlnkmiwy5jpvvf; path=/
       cookie = String(data.headers["set-cookie"][0]).replace(/; path=\// , "");
@@ -82,8 +77,6 @@ exports.getCookieAndCheckCode = function(req,res,next){
       return getCheckCodeProminse(ApiAddress.checkCode,assginHeaders);
     })
     .then((data)=>{
-      // console.log('-------进入getDataProminse验证码的then');
-      // console.log(data.headers);
       fs.writeFile('public/img/CheckCode.gif',data.body,(err)=>{
         if(err){
           console.log(err);
@@ -180,7 +173,6 @@ exports.login = function(req,res,next){
             }
             console.log('-----获取评价课程信息列表-----成功-----展示课程信息...');
             console.log(courseNameList);
-            // console.log(courseHrefList);
             req.session.courseHrefList=courseHrefList;
           }else{
             console.log('-----获取评价课程信息列表-----失败-----或者评价完成');
@@ -205,13 +197,11 @@ exports.login = function(req,res,next){
     .then((data)=>{
       console.log('-----总体评教-----保存所有评教-----结束-----等待提交环节开始');
       console.log('-----总体评教-----提交所有评教-----开始');
-      // console.log(data);
       req.session.isEvaluated=true;
       var lastData={
         path:data[data.length-1].path,
         headers:data[data.length-1].headers
       }
-      // console.log(lastData);
       return submitAllCourseProminse(req,cookie,lastData.path,lastData.headers);
     })
     .then((data)=>{
@@ -235,7 +225,6 @@ function saveAllCourseProminse(req,cookie,courseHrefList){
       Referer:"http://210.38.137.126:8016/xs_main.aspx?xh="+req.session.account 
   });
   var prominses = courseHrefList.map((href,index)=>{
-    // console.log("ALL_PROMINSE"+href);
     return saveSingleCourseProminse(req,cookie,href,assembleCourseHeader,index);
   });
   return Promise.all(prominses);
@@ -285,7 +274,6 @@ function saveSingleCourseProminse(req,cookie,path,headers,index){
             if (isThreeTeacher) {
                assemblePostParam = Object.assign({},assemblePostParam,DataConfig.EVALUATION_CONFIG_THREE_TEACHER)
             }
-            // console.log(assemblePostParam);
             
             if (index === req.session.courseHrefList.length-1) {
               console.log('最后一个');
@@ -319,7 +307,6 @@ function submitAllCourseProminse(req,cookie,path,headers){
     var assemblePostParam = Object.assign({},lastPostData,{
       Button2:"提交",
     });
-    // console.log(assemblePostParam);
     postFormDataProminse(path,headers,assemblePostParam)
       .then((data)=>{
         var $ = cheerio.load(data.text);
@@ -336,20 +323,15 @@ function submitAllCourseProminse(req,cookie,path,headers){
 
 
 function getDataProminse(path,headers){
-  // console.log('prominse -- getDataProminse --start');
-  // console.log(headers);
   var prominse = new Promise((resolve,reject)=>{
     request.get(path)
             .charset("gb2312")  //获取的text是中文?  => 是的
             .set(headers)
             .end((err,result,body)=>{
               if (err) {
-                // console.log('prominse -- getDataProminse --error');
-                // console.log(err);
                 err.msg="正方服务器错误(确保海大正方网页能登上去)";
                 reject(err);
               }
-              // console.log('prominse -- getDataProminse --end');
               resolve(result);
             });
   });
@@ -358,18 +340,14 @@ function getDataProminse(path,headers){
 
 //TODO 解决charset问题
 function getCheckCodeProminse(path,headers){
-  // console.log('prominse -- getDataProminse --start');
   var prominse = new Promise((resolve,reject)=>{
     request.get(path)
             .set(headers)
             .end((err,result,body)=>{
               if (err) {
-                // console.log('prominse -- getDataProminse -- error');
-                // console.log(err);
                 err.msg="获取验证码错误";
                 reject(err);
               }
-              // console.log('prominse -- getDataProminse --end');
               resolve(result);
             });
   });
@@ -377,10 +355,6 @@ function getCheckCodeProminse(path,headers){
 }
 
 function postFormDataProminse(path,headers,postData){
-  // console.log('prominse -- postFormData -- start');
-  // console.log(path);
-  // console.log(headers);
-  // console.log(postData);
   var prominse = new Promise((resolve,reject)=>{
       request.post(path)
           .charset("gb2312")
@@ -389,12 +363,9 @@ function postFormDataProminse(path,headers,postData){
           .send(postData)
           .end((err,result,body)=>{
             if (err) {
-              // console.log('prominse -- postFormData -- error');
-              // console.log(err);
               err.msg="正方服务器错误(确保海大正方网页能登上去)";
               reject(err);
             }
-            // console.log('prominse -- postFormData -- end');
             resolve(result);
           });
   });

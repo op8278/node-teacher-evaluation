@@ -22,7 +22,6 @@ exports.LOGIN_CONFIG = {
   "hidsc"                   :   ""
   
 };
-// postParmEvaluationOneTeacher
 //评价一个教师
 exports.EVALUATION_CONFIG  = {
   //评价教师 
