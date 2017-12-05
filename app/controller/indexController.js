@@ -1,5 +1,5 @@
 
-var request = require("superagent"); //res.headers  res.header 共存
+var request = require("superagent"); //res.headers res.header 共存
 var charset = require("superagent-charset");
 var cheerio = require("cheerio");
 var qs = require("querystring");
@@ -11,7 +11,7 @@ var DataConfig = require('../../config/dataConfig.js');
 
 charset(request);
 
-//组装Error对象
+// 组装Error对象
 function assembleError(code,msg){
   var err = new Error(msg);
   err.code = code;
@@ -19,7 +19,7 @@ function assembleError(code,msg){
   return err;
 }
 
-//刷新验证码接口
+// 刷新验证码接口
 exports.refreshCheckCode=function(req,res,next){
   var cookie = req.body.cookie || "";
   var _res = res;
@@ -28,9 +28,9 @@ exports.refreshCheckCode=function(req,res,next){
     console.log('请传入正确的cookie');
     return _res.apiError({code:1,msg:'请传入正确的cookie'});
   }
-  //带着cookie请求验证码
+  // 带着cookie请求验证码
   var assginHeaders=Object.assign({},DataConfig.BASE_HEADER,{Cookie:cookie});
-  //访问验证码 
+  // 访问验证码 
   getCheckCodeProminse(ApiAddress.checkCode,assginHeaders)
     .then((data)=>{
       fs.writeFile('public/img/CheckCodeRefresh'+randomSuffix+'.gif',data.body,(err)=>{
@@ -48,8 +48,7 @@ exports.refreshCheckCode=function(req,res,next){
       return _res.apiError('刷新验证码失败');
     });
 }
-//首页
-//TODO 不要等加载完验证码后才加载首页_res.render
+// 首页
 exports.index = function(req,res,next){
   var cookie = req.session.saveCookie || '';
   var date = new Date();
@@ -61,7 +60,7 @@ exports.index = function(req,res,next){
   });
 }
 
-//获取Cookie和验证码
+// 获取Cookie和验证码
 exports.getCookieAndCheckCode = function(req,res,next){
   var cookie = '';
   var _res = res;
@@ -95,75 +94,75 @@ exports.getCookieAndCheckCode = function(req,res,next){
       return _res.apiError(err);
     });
 }
-//登录 Post请求
+// 登录 Post请求
 exports.login = function(req,res,next){
-  // res.end();
   var loginDate = new Date();
   console.log('-----登录-----开始-----' + loginDate);
 
-  var _res=res;//全局res对象
-  var courseHrefList=[];//评价课程Url地址
-  var courseNameList=[];//评价课程名字
+  var _res=res; // 全局res对象
+  var courseHrefList=[]; // 评价课程Url地址
+  var courseNameList=[]; // 评价课程名字
   
-  var isEvaluating = req.session.isEvaluating || false;
+  var isEvaluating = req.session.isEvaluating || false; // 是否正在评教标志位
+  console.log('isEvaluating ---' + isEvaluating)
   if (isEvaluating) {
-    //防止多次提交
+    // 防止多次提交
     console.log('阻止多次提交');
-    return _res.end();
+    return _res.apiError(3,'阻止多次提交');
   }
   req.session.isEvaluating = true;
 
-  //获取post过来的account,password,验证码
+  // 获取post过来的account,password,验证码
   var receiveParam={
     txtUserName:req.body.account || "",
     TextBox2:req.body.password || "",
     txtSecretCode:req.body.checkCode || ""
   }
-  //获取cookie
+  // 获取cookie
   var cookie = req.session.saveCookie || "" ;
-  //组装Post参数和请求头
+  // 组装Post参数和请求头
   var assemblePostParam = Object.assign({},DataConfig.LOGIN_CONFIG,receiveParam);
   var assembleLoginHeader = Object.assign({},DataConfig.BASE_HEADER,{
     Cookie:cookie,
   });
 
-  //带有Referer
+  // 带有Referer
   postFormDataProminse(ApiAddress.login,assembleLoginHeader,assemblePostParam)
     .then((data)=>{
         console.log('-----登录-----结束----正在验证登录结果');
-        //解析data数据(result.text) -- html页面;
+        // 解析data数据(result.text) -- html页面;
         var $ = cheerio.load(data.text);
-        //判断是否登录成功
+        // 判断是否登录成功
         var studentName = $('#xhxm').text(); //"XXX同学"
         // var studentTrueName=studentName.replace("同学",""); //"XXX"
         if (!studentName) {
           console.log('-----登录-----失败');
-          //找出错误信息(正则表达式)
+          // 找出错误信息(正则表达式)
           var text = $('#form1 script').html();
           var reg = /'([^']*)'/;
           var loginFailInfo = reg.exec(text)[1];
           console.log(loginFailInfo);
-          //错误信息 保存在locals变量中,供页面调用
+          // 错误信息 保存在locals变量中,供页面调用
           req.session.loginFailInfo = loginFailInfo;
           req.session.isEvaluating = false;
-          //退出
-           return Promise.reject(assembleError(1,loginFailInfo));
+          // 退出
+          return Promise.reject(assembleError(1,loginFailInfo));
         }else{
           var getCoursesInfoDate = new Date();
           console.log('-----登录-----成功-----' + studentName);
           console.log('-----获取评价课程信息列表-----开始-----' + getCoursesInfoDate);
-          //清空错误信息
+          // 清空错误信息
           req.session.loginFailInfo = null;
-          req.session.isEvaluated = false;
+          req.session.isEvaluated = false; // 是否评教完成
           req.session.courseFailInfo = null;
-          //保存学号 例如201311672201
+          // 保存学号 例如201311672201
           req.session.account = receiveParam.txtUserName;
           req.session.studentName = studentName;
 
           console.log('-----获取评价课程信息列表-----结束-----正在验证获取课程信息结果');
-          //保存course数据
+          // 保存course数据
           // var courses   = $('.sub');
-          //eq(0)--网上选课 eq(1)--报名或申请 eq(2)--教学质量评价
+          // eq(0)--网上选课 eq(1)--报名或申请 eq(2)--教学质量评价
           var courses   = $('.sub').eq(2).find('a');
           if (courses && courses.length > 0) {
             for(var i=0,len=courses.length;i<len;i++){
@@ -176,10 +175,10 @@ exports.login = function(req,res,next){
             req.session.courseHrefList=courseHrefList;
           }else{
             console.log('-----获取评价课程信息列表-----失败-----或者评价完成');
-            //清空 course数据 列表
+            // 清空 course数据 列表
             courseNameList=[];
             courseHrefList=[];
-            courseFailInfo = '你已评教完or现在不是评教时候'
+            courseFailInfo = '你已评教完成 或 目前正方评教接口未开放'
             req.session.isEvaluated = false;
             req.session.isEvaluating = false;
             req.session.courseFailInfo=courseFailInfo;
@@ -208,17 +207,17 @@ exports.login = function(req,res,next){
       var completeDate = new Date();
       console.log('-----总体评教-----提交所有评教-----结束');
       console.log('-----总体评教-----结束-----成功!!!-----'+completeDate);
-      req.session.isEvaluating = false;
       return _res.apiSuccess('评教成功!请登录教务系统进一步确认');
     })
     .catch((err)=>{
       console.log(err);
       console.log('-----总体评教-----结束-----失败!!!');
       req.session.isEvaluating = false;
+      req.session.isEvaluated = false;
       return _res.apiError(err);
     });
 }
-//保存所有课程后的prominse
+// 保存所有课程后的prominse
 function saveAllCourseProminse(req,cookie,courseHrefList){
   var assembleCourseHeader = Object.assign({},DataConfig.BASE_HEADER,{
       Cookie:cookie,
@@ -229,25 +228,25 @@ function saveAllCourseProminse(req,cookie,courseHrefList){
   });
   return Promise.all(prominses);
 }
-//保存单个课程的prominse
+// 保存单个课程的prominse
 function saveSingleCourseProminse(req,cookie,path,headers,index){
   return new Promise((resolve,reject)=>{
-      //get请求获取单个课程信息
+      // get请求获取单个课程信息
       getDataProminse(path,headers)
         .then((data)=>{
-            //利用 cheerio 获取 需要传递的参数
+            // 利用 cheerio 获取 需要传递的参数
             var $ = cheerio.load(data.text);
-            //获取隐藏表单域字符，每一次提交评价必须带上
+            // 获取隐藏表单域字符，每一次提交评价必须带上
             var hiddenDom = $('input[type="hidden"]');
             var currentCourseName = $('#pjkc').find("option:selected").text();
-            //判断是否需要判断是有需要 评价2个教师 3个教师 教材
+            // 判断是否需要判断是有需要 评价2个教师 3个教师 教材
             var isNeedTextBook = $('#lblPjc').text();
             var isTwoTeacher = $('#DataGrid1__ctl2_JS2');
             var isThreeTeacher = $('#DataGrid1__ctl2_JS3');
 
             console.log('-----评教-----' + currentCourseName + '----开始');
 
-            //获取课程号
+            // 获取课程号
             var args = url.parse(path,true);
             var hiddenValue={
               Button1:"保存",
@@ -256,14 +255,13 @@ function saveSingleCourseProminse(req,cookie,path,headers,index){
               __EVENTARGUMENT:hiddenDom.eq(1).val() || "",
               __VIEWSTATE:hiddenDom.eq(2).val() || ""
             }
-            //组装Headers和PostParam
+            // 组装Headers和PostParam
             var assembleEvaluationHeader = Object.assign({},DataConfig.BASE_HEADER,{
               Cookie:cookie,
               Referer:path
             });
 
-            //TODO 需要判断是有需要 评价2个教师 3个教师 教材
-            //组装需要post的参数
+            // 组装需要post的参数
             var assemblePostParam = Object.assign({},hiddenValue,DataConfig.EVALUATION_CONFIG);
             if (isNeedTextBook) {
               assemblePostParam = Object.assign({},assemblePostParam,DataConfig.EVALUATION_TEXTBOOK)
@@ -277,7 +275,7 @@ function saveSingleCourseProminse(req,cookie,path,headers,index){
             
             if (index === req.session.courseHrefList.length-1) {
               console.log('最后一个');
-              req.session.lastPostData=assemblePostParam; //TODO解决undefind
+              req.session.lastPostData=assemblePostParam; // TODO:解决undefind
             }
             return postFormDataProminse(path,assembleEvaluationHeader,assemblePostParam)
         })
@@ -291,14 +289,15 @@ function saveSingleCourseProminse(req,cookie,path,headers,index){
               headers:headers
             }
             resolve(returnData);
+        })
+        .catch((err)=>{
+          console.log(err);
+          reject(err);
         });
-        //TODO 需要在这catch吗?
-        // .catch((err)=>{
-        //   console.log(err);
-        //   reject(err);
-        // });
   });
 }
+
+// 最终提交
 function submitAllCourseProminse(req,cookie,path,headers){
   return new Promise((resolve,reject)=>{
     var lastPostData=req.session.lastPostData || "";
@@ -320,12 +319,11 @@ function submitAllCourseProminse(req,cookie,path,headers){
       });
   });
 }
-
-
+// 普通get请求获取数据
 function getDataProminse(path,headers){
   var prominse = new Promise((resolve,reject)=>{
     request.get(path)
-            .charset("gb2312")  //获取的text是中文?  => 是的
+            .charset("gb2312") // 获取的text是中文? => 是的
             .set(headers)
             .end((err,result,body)=>{
               if (err) {
@@ -337,8 +335,8 @@ function getDataProminse(path,headers){
   });
   return prominse;
 }
-
-//TODO 解决charset问题
+// TODO: 解决charset问题(同getDataProminse复用代码)
+// 获取验证码
 function getCheckCodeProminse(path,headers){
   var prominse = new Promise((resolve,reject)=>{
     request.get(path)
@@ -353,7 +351,7 @@ function getCheckCodeProminse(path,headers){
   });
   return prominse;
 }
-
+// 提交单个课程
 function postFormDataProminse(path,headers,postData){
   var prominse = new Promise((resolve,reject)=>{
       request.post(path)

@@ -15,12 +15,11 @@ exports.BASE_HEADER = {
 exports.LOGIN_CONFIG = {
   "__VIEWSTATE"             :   "dDwtNTE2MjI4MTQ7Oz61L6x6++KxDmUi3mVHED4viE+96g==",
   "RadioButtonList1"        :   "学生",
-  "Textbox1"                :   "", //
+  "Textbox1"                :   "",
   "Button1"                 :   "",
   "lbLanguage"              :   "",
   "hidPdrs"                 :   "",
   "hidsc"                   :   ""
-  
 };
 //评价一个教师
 exports.EVALUATION_CONFIG  = {

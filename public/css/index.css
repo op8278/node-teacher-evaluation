@@ -14,7 +14,6 @@
   padding-bottom: 20px;
   background-color: #eee;
   border-radius:5px;
-  /*background-color: #6495ed;*/
   background:transparent;
 }
 .login-title{
@@ -84,6 +83,32 @@
   -o-opacity: 1;
 }
 /*loading动画*/
+@-webkit-keyframes loading {
+  0%,10%{
+    margin-top: 5px;
+    height:22px;
+  }
+  20%{
+    margin-top: 0px;
+    height: 32px;
+  }
+  30%{
+    margin-top: 1px;
+    height: 30px;
+  }  
+  40%{
+    margin-top: 3px;
+    height: 26px;
+  }
+  50%{
+    margin-top: 5px;
+    height: 22px;
+  }  
+  60%,70%,100%{
+    margin-top: 6px;
+    height: 18px;
+  }
+}
 @keyframes loading {
   0%,10%{
     margin-top: 5px;
